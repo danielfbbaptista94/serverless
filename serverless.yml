@@ -1,0 +1,76 @@
+
+service: serverless-employee-api
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: sa-east-1
+  lambdaHashingVersion: 20201221
+  iamRolaStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      
+resources:
+  Resources:
+    TodosTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 'employees'
+
+functions:
+  create:
+    handler: src/handler/createEmployee.createEmployee
+    events:
+      - http:
+          path: employees
+          method: post
+          cors: true
+  list:
+    handler: src/handler/listEmployee.listEmployee
+    events:
+      - http:
+          path: employees
+          method: get
+          cors: true
+  get:
+    handler: src/handler/getEmployee.getEmployee
+    events:
+      - http:
+          path: employees/{id}
+          method: get
+          cors: true
+  update:
+    handler: src/handler/updateEmployee.updateEmployee
+    events:
+      - http:
+          path: employees/{id}
+          method: put
+          cors: true
+  delete:
+    handler: src/handler/deleteEmployee.deleteEmployee
+    events:
+      - http:
+          path: employees/{id}
+          method: delete
+          cors: true
